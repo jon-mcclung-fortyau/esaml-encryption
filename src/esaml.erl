@@ -389,6 +389,7 @@ validate_assertion(AssertionXml, Recipient, Audience) ->
         {error, Reason} ->
             {error, Reason};
         {ok, Assertion} ->
+            io:format("sss Assertion: ~p~n", [Assertion])
             esaml_util:threaduntil([
                 fun(A) -> case A of
                     #esaml_assertion{version = "2.0"} -> A;
