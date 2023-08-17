@@ -37,6 +37,7 @@
 	certificate :: binary() | undefined,
 	entity_id = "" :: string(),
 	login_location = "" :: string(),
+	redirect_login_location = "" :: string(),
 	logout_location :: string() | undefined,
 	name_format = unknown :: esaml:name_format()}).
 

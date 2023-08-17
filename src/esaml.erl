@@ -155,16 +155,18 @@ decode_idp_metadata(Xml) ->
           {"md", 'urn:oasis:names:tc:SAML:2.0:metadata'},
           {"ds", 'http://www.w3.org/2000/09/xmldsig#'}],
     esaml_util:threaduntil([
-        ?xpath_attr_required("/md:EntityDescriptor/@entityID", esaml_idp_metadata, entity_id, bad_entity),
-        ?xpath_attr_required("/md:EntityDescriptor/md:IDPSSODescriptor/md:SingleSignOnService[@Binding='urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST']/@Location",
+        ?xpath_attr_required("//md:EntityDescriptor/@entityID", esaml_idp_metadata, entity_id, bad_entity),
+        ?xpath_attr_required("//md:EntityDescriptor/md:IDPSSODescriptor/md:SingleSignOnService[@Binding='urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST']/@Location",
             esaml_idp_metadata, login_location, missing_sso_location),
-        ?xpath_attr("/md:EntityDescriptor/md:IDPSSODescriptor/md:SingleLogoutService[@Binding='urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST']/@Location",
+        ?xpath_attr_required("//md:EntityDescriptor/md:IDPSSODescriptor/md:SingleSignOnService[@Binding='urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect']/@Location",
+            esaml_idp_metadata, redirect_login_location, missing_redirect_sso_location),
+        ?xpath_attr("//md:EntityDescriptor/md:IDPSSODescriptor/md:SingleLogoutService[@Binding='urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST']/@Location",
             esaml_idp_metadata, logout_location),
-        ?xpath_text("/md:EntityDescriptor/md:IDPSSODescriptor/md:NameIDFormat/text()",
+        ?xpath_text("//md:EntityDescriptor/md:IDPSSODescriptor/md:NameIDFormat/text()",
             esaml_idp_metadata, name_format, fun nameid_map/1),
-        ?xpath_text("/md:EntityDescriptor/md:IDPSSODescriptor/md:KeyDescriptor[@use='signing']/ds:KeyInfo/ds:X509Data/ds:X509Certificate/text()", esaml_idp_metadata, certificate, fun(X) -> base64:decode(list_to_binary(X)) end),
-        ?xpath_recurse("/md:EntityDescriptor/md:ContactPerson[@contactType='technical']", esaml_idp_metadata, tech, decode_contact),
-        ?xpath_recurse("/md:EntityDescriptor/md:Organization", esaml_idp_metadata, org, decode_org)
+        ?xpath_text("//md:EntityDescriptor/md:IDPSSODescriptor/md:KeyDescriptor[@use='signing']/ds:KeyInfo/ds:X509Data/ds:X509Certificate/text()", esaml_idp_metadata, certificate, fun(X) -> base64:decode(list_to_binary(X)) end),
+        ?xpath_recurse("//md:EntityDescriptor/md:ContactPerson[@contactType='technical']", esaml_idp_metadata, tech, decode_contact),
+        ?xpath_recurse("//md:EntityDescriptor/md:Organization", esaml_idp_metadata, org, decode_org)
     ], #esaml_idp_metadata{}).
 
 %% @private
