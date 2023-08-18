@@ -385,17 +385,10 @@ check_stale(A) ->
 -spec validate_assertion(AssertionXml :: #xmlElement{}, Recipient :: string(), Audience :: string()) ->
         {ok, #esaml_assertion{}} | {error, Reason :: term()}.
 validate_assertion(AssertionXml, Recipient, Audience) ->
-    Ns = [{"samlp", 'urn:oasis:names:tc:SAML:2.0:protocol'},
-          {"xsd", 'http://www.w3.org/2001/XMLSchema'},
-          {"saml", 'urn:oasis:names:tc:SAML:2.0:assertion'}],
-    Recipient_ = xmerl_xpath:string("/saml:Assertion/saml:Subject/saml:SubjectConfirmation/saml:SubjectConfirmationData/@Recipient", AssertionXml, [{namespace, Ns}]),
-    [#xmlAttribute{value = RecipientValue}] = Recipient_,
-    io:format("sss actual Recipient: ~p~n", [RecipientValue]),
     StringExpectedRecipient = case is_binary(Recipient) of
         true -> binary_to_list(Recipient);
         false -> Recipient
     end,
-    io:format("sss expected Recipient: ~p~n", [StringExpectedRecipient]),
     case decode_assertion(AssertionXml) of
         {error, Reason} ->
             {error, Reason};
@@ -410,12 +403,17 @@ validate_assertion(AssertionXml, Recipient, Audience) ->
                     #esaml_assertion{recipient = StringExpectedRecipient} -> A;
                     _ -> {error, bad_recipient}
                 end end,
-                fun(A) -> case A of
+                fun(A) -> 
+                    io:format("sss Expected Audience: ~p~n", [Audience])
+                    case A of
                     #esaml_assertion{conditions = Conds} ->
+                        io:format("sss Conds: ~p~n", [Conds])
                         case proplists:get_value(audience, Conds) of
                             undefined -> A;
                             Audience -> A;
-                            _ -> {error, bad_audience}
+                            ActualAudience -> 
+                                io:format("sss ActualAudience: ~p~n", [ActualAudience])
+                                {error, bad_audience}
                         end;
                     _ -> A
                 end end,
