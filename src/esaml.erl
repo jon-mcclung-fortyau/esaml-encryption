@@ -386,7 +386,9 @@ check_stale(A) ->
         {ok, #esaml_assertion{}} | {error, Reason :: term()}.
 validate_assertion(AssertionXml, Recipient, Audience) ->
     io:format("sss AssertionXml: ~p~n", [AssertionXml]),
-    Recipient = xmerl_xpath(AssertionXml, "/saml:Assertion/saml:Subject/saml:SubjectConfirmation/saml:SubjectConfirmationData/@Recipient"),
+    Ns = [{"samlp", 'urn:oasis:names:tc:SAML:2.0:protocol'},
+          {"saml", 'urn:oasis:names:tc:SAML:2.0:assertion'}],
+    Recipient = xmerl_xpath:string("/saml:Assertion/saml:Subject/saml:SubjectConfirmation/saml:SubjectConfirmationData/@Recipient", AssertionXml, [{namespace, Ns}]),
     io:format("sss Recipient: ~p~n", [Recipient]),
     case decode_assertion(AssertionXml) of
         {error, Reason} ->
