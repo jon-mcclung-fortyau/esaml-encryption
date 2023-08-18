@@ -387,8 +387,9 @@ check_stale(A) ->
 validate_assertion(AssertionXml, Recipient, Audience) ->
     io:format("sss AssertionXml: ~p~n", [AssertionXml]),
     Ns = [{"samlp", 'urn:oasis:names:tc:SAML:2.0:protocol'},
+          {"xsd", 'http://www.w3.org/2001/XMLSchema'},
           {"saml", 'urn:oasis:names:tc:SAML:2.0:assertion'}],
-    Recipient = xmerl_xpath:string("/saml:Assertion/saml:Subject/saml:SubjectConfirmation/saml:SubjectConfirmationData/@Recipient", AssertionXml, [{namespace, Ns}]),
+    Recipient = xmerl_xpath:string("//saml:Assertion/saml:Subject/saml:SubjectConfirmation/saml:SubjectConfirmationData/@Recipient", AssertionXml, [{namespace, Ns}]),
     io:format("sss Recipient: ~p~n", [Recipient]),
     case decode_assertion(AssertionXml) of
         {error, Reason} ->
