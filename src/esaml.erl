@@ -389,6 +389,10 @@ validate_assertion(AssertionXml, Recipient, Audience) ->
         true -> binary_to_list(Recipient);
         false -> Recipient
     end,
+    StringExpectedAudience = case is_binary(Audience) of
+        true -> binary_to_list(Audience);
+        false -> Audience
+    end,
     case decode_assertion(AssertionXml) of
         {error, Reason} ->
             {error, Reason};
@@ -410,7 +414,7 @@ validate_assertion(AssertionXml, Recipient, Audience) ->
                         io:format("sss Conds: ~p~n", [Conds]),
                         case proplists:get_value(audience, Conds) of
                             undefined -> A;
-                            Audience -> A;
+                            StringExpectedAudience -> A;
                             ActualAudience -> 
                                 io:format("sss ActualAudience: ~p~n", [ActualAudience]),
                                 {error, bad_audience}
