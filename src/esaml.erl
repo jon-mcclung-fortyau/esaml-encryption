@@ -390,7 +390,9 @@ validate_assertion(AssertionXml, Recipient, Audience) ->
           {"xsd", 'http://www.w3.org/2001/XMLSchema'},
           {"saml", 'urn:oasis:names:tc:SAML:2.0:assertion'}],
     Recipient_ = xmerl_xpath:string("/saml:Assertion/saml:Subject/saml:SubjectConfirmation/saml:SubjectConfirmationData/@Recipient", AssertionXml, [{namespace, Ns}]),
-    io:format("sss Recipient: ~p~n", [Recipient_]),
+    io:format("sss expected Recipient: ~p~n", [Recipient]),
+    #xmlAttribute{value = RecipientValue} = Recipient_
+    io:format("sss actual Recipient: ~p~n", [RecipientValue]),
     case decode_assertion(AssertionXml) of
         {error, Reason} ->
             {error, Reason};
