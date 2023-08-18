@@ -404,15 +404,15 @@ validate_assertion(AssertionXml, Recipient, Audience) ->
                     _ -> {error, bad_recipient}
                 end end,
                 fun(A) -> 
-                    io:format("sss Expected Audience: ~p~n", [Audience])
+                    io:format("sss Expected Audience: ~p~n", [Audience]),
                     case A of
                     #esaml_assertion{conditions = Conds} ->
-                        io:format("sss Conds: ~p~n", [Conds])
+                        io:format("sss Conds: ~p~n", [Conds]),
                         case proplists:get_value(audience, Conds) of
                             undefined -> A;
                             Audience -> A;
                             ActualAudience -> 
-                                io:format("sss ActualAudience: ~p~n", [ActualAudience])
+                                io:format("sss ActualAudience: ~p~n", [ActualAudience]),
                                 {error, bad_audience}
                         end;
                     _ -> A
