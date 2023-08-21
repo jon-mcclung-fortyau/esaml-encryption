@@ -357,6 +357,7 @@ block_decrypt("http://www.w3.org/2009/xmlenc11#aes128-gcm", SymmetricKey, Cipher
 
 block_decrypt("http://www.w3.org/2001/04/xmlenc#aes128-cbc", SymmetricKey, CipherValue) ->
     SupportedAlgorithms = crypto:algorithms(),
+    io:format("SupportedAlgorithsm: ~p~n", [SupportedAlgorithms]),
     lists:foreach(fun(Algorithm) -> io:format("Supports ~p~n", [Algorithm]) end, SupportedAlgorithms),
     <<IV:16/binary, EncryptedData/binary>> = CipherValue,
     DecryptedData = crypto:crypto_one_time(aes_128_cbc, SymmetricKey, IV, EncryptedData, false),
