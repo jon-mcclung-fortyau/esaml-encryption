@@ -342,6 +342,7 @@ decrypt(CipherValue, "http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p", Key) ->
         {rsa_padding, rsa_pkcs1_oaep_padding},
         {rsa_pad, rsa_pkcs1_oaep_padding}
     ],
+    io:format("Opts: ~p~nKey: ~p~n", [Opts, Key]),
     public_key:decrypt_private(CipherValue, Key, Opts).
 
 
