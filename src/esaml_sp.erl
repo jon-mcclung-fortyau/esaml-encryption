@@ -246,7 +246,7 @@ validate_assertion(Xml, DuplicateFun, SP = #esaml_sp{}) ->
             io:format("X: ~p~n", [X]),
             case xmerl_xpath:string("/samlp:Response/saml:EncryptedAssertion", X, [{namespace, Ns}]) of
                 [A1] ->
-                    io:format("EncryptedAssertion")
+                    io:format("EncryptedAssertion"),
                     try
                         #xmlElement{} = DecryptedAssertion = decrypt_assertion(A1, SP),
                         xmerl_xpath:string("/saml:Assertion", DecryptedAssertion, [{namespace, Ns}]) of
