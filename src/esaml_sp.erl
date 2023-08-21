@@ -249,8 +249,10 @@ validate_assertion(Xml, DuplicateFun, SP = #esaml_sp{}) ->
                     io:format("EncryptedAssertion ~n"),
                     % try
                         #xmlElement{} = DecryptedAssertion = decrypt_assertion(A1, SP),
-                        xmerl_xpath:string("/saml:Assertion", DecryptedAssertion, [{namespace, Ns}]) of
-                        [A2] -> A2
+                        case xmerl_xpath:string("/saml:Assertion", DecryptedAssertion, [{namespace, Ns}]) of
+                            [A2] -> A2;
+                            _ -> {error, bad_assertion}
+                        end
                     % catch
                         % Error:Reason ->
                             % io:format("Error occurred: ~p - ~p~n", [Error, Reason]),
