@@ -321,9 +321,13 @@ decrypt_key_info(EncryptedData, Key) ->
     DsNs = [{"ds", 'http://www.w3.org/2000/09/xmldsig#'}],
     XencNs = [{"xenc", 'http://www.w3.org/2001/04/xmlenc#'}],
     [KeyInfo] = xmerl_xpath:string("./ds:KeyInfo", EncryptedData, [{namespace, DsNs}]),
+    io:format("KeyInfo: ~p~n", [KeyInfo]),
     [#xmlAttribute{value = Algorithm}] = xmerl_xpath:string("./xenc:EncryptedKey/xenc:EncryptionMethod/@Algorithm", KeyInfo, [{namespace, XencNs}]),
+    io:format("Algorithm: ~p~n", [Algorithm]),
     [#xmlText{value = CipherValue64}] = xmerl_xpath:string("./xenc:EncryptedKey/xenc:CipherData/xenc:CipherValue/text()", KeyInfo, [{namespace, XencNs}]),
+    io:format("CipherValue64: ~p~n", [CipherValue64]),
     CipherValue = base64:decode(CipherValue64),
+    io:format("CipherValue: ~p~n", [CipherValue]),
     decrypt(CipherValue, Algorithm, Key).
 
 decrypt(CipherValue, "http://www.w3.org/2001/04/xmlenc#rsa-1_5", Key) ->
