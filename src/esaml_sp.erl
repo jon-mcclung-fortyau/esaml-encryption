@@ -356,8 +356,10 @@ block_decrypt("http://www.w3.org/2009/xmlenc11#aes128-gcm", SymmetricKey, Cipher
     binary_to_list(DecryptedData);
 
 block_decrypt("http://www.w3.org/2001/04/xmlenc#aes128-cbc", SymmetricKey, CipherValue) ->
+    SupportedAlgorithms = crypto:algorithms(),
+    lists:foreach(fun(Algorithm) -> io:format("Supports ~p~n", [Algorithm]) end, SupportedAlgorithms),
     <<IV:16/binary, EncryptedData/binary>> = CipherValue,
-    DecryptedData = crypto:crypto_one_time(aes_cbc128, SymmetricKey, IV, EncryptedData, false),
+    DecryptedData = crypto:crypto_one_time(aes_128_cbc, SymmetricKey, IV, EncryptedData, false),
     IsPadding = fun(X) -> X < 16 end,
     lists:reverse(lists:dropwhile(IsPadding, lists:reverse(binary_to_list(DecryptedData))));
 
