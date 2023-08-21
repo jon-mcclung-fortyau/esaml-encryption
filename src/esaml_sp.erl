@@ -259,9 +259,7 @@ validate_assertion(Xml, DuplicateFun, SP = #esaml_sp{}) ->
                 _ ->
                     case xmerl_xpath:string("/samlp:Response/saml:Assertion", X, [{namespace, Ns}]) of
                         [A3] -> A3;
-                        Error:Reason ->
-                            io:format("Error occurred: ~p - ~p~n", [Error, Reason]),
-                            {error, bad_assertion}
+                        _ -> {error, bad_assertion}
                     end
             end
         end,
