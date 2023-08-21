@@ -412,7 +412,7 @@ validate_assertion(AssertionXml, Recipient, Audience) ->
                         case proplists:get_value(audience, Conds) of
                             undefined -> A;
                             StringExpectedAudience -> A;
-                            ActualAudience -> {error, bad_audience}
+                            _ActualAudience -> {error, bad_audience}
                         end;
                     _ -> A
                 end end,
