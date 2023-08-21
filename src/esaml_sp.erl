@@ -246,7 +246,7 @@ validate_assertion(Xml, DuplicateFun, SP = #esaml_sp{}) ->
             io:format("X: ~p~n", [X]),
             case xmerl_xpath:string("/samlp:Response/saml:EncryptedAssertion", X, [{namespace, Ns}]) of
                 [A1] ->
-                    io:format("EncryptedAssertion"),
+                    io:format("EncryptedAssertion ~n"),
                     try
                         #xmlElement{} = DecryptedAssertion = decrypt_assertion(A1, SP),
                         xmerl_xpath:string("/saml:Assertion", DecryptedAssertion, [{namespace, Ns}]) of
@@ -301,12 +301,19 @@ validate_assertion(Xml, DuplicateFun, SP = #esaml_sp{}) ->
 decrypt_assertion(Xml, #esaml_sp{key = PrivateKey}) ->
     XencNs = [{"xenc", 'http://www.w3.org/2001/04/xmlenc#'}],
     [EncryptedData] = xmerl_xpath:string("./xenc:EncryptedData", Xml, [{namespace, XencNs}]),
+    io:format("EncryptedData: ~p~n", [EncryptedData]),
     [#xmlText{value = CipherValue64}] = xmerl_xpath:string("xenc:CipherData/xenc:CipherValue/text()", EncryptedData, [{namespace, XencNs}]),
+    io:format("CipherValue64: ~p~n", [CipherValue64]),
     CipherValue = base64:decode(CipherValue64),
+    io:format("CipherValue: ~p~n", [CipherValue]),
     SymmetricKey = decrypt_key_info(EncryptedData, PrivateKey),
+    io:format("SymmetricKey: ~p~n", [SymmetricKey]),
     [#xmlAttribute{value = Algorithm}] = xmerl_xpath:string("./xenc:EncryptionMethod/@Algorithm", EncryptedData, [{namespace, XencNs}]),
+    io:format("Algorithm: ~p~n", [Algorithm]),
     AssertionXml = block_decrypt(Algorithm, SymmetricKey, CipherValue),
+    io:format("AssertionXml: ~p~n", [AssertionXml]),
     {Assertion, _} = xmerl_scan:string(AssertionXml, [{namespace_conformant, true}]),
+    io:format("Assertion: ~p~n", [Assertion]),
     Assertion.
 
 
