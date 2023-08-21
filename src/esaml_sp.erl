@@ -243,21 +243,17 @@ validate_assertion(Xml, DuplicateFun, SP = #esaml_sp{}) ->
           {"saml", 'urn:oasis:names:tc:SAML:2.0:assertion'}],
     esaml_util:threaduntil([
         fun(X) ->
-            io:format("X: ~p~n", [X]),
             case xmerl_xpath:string("/samlp:Response/saml:EncryptedAssertion", X, [{namespace, Ns}]) of
                 [A1] ->
-                    io:format("EncryptedAssertion ~n"),
-                    % try
+                    try
                         #xmlElement{} = DecryptedAssertion = decrypt_assertion(A1, SP),
                         case xmerl_xpath:string("/saml:Assertion", DecryptedAssertion, [{namespace, Ns}]) of
                             [A2] -> A2;
                             _ -> {error, bad_assertion}
                         end;
-                    % catch
-                        % Error:Reason ->
-                            % io:format("Error occurred: ~p - ~p~n", [Error, Reason]),
-                            % {error, bad_assertion}
-                    % end;
+                    catch
+                        _Error:_Reason -> {error, bad_assertion}
+                    end;
                 _ ->
                     case xmerl_xpath:string("/samlp:Response/saml:Assertion", X, [{namespace, Ns}]) of
                         [A3] -> A3;
@@ -303,19 +299,12 @@ validate_assertion(Xml, DuplicateFun, SP = #esaml_sp{}) ->
 decrypt_assertion(Xml, #esaml_sp{key = PrivateKey}) ->
     XencNs = [{"xenc", 'http://www.w3.org/2001/04/xmlenc#'}],
     [EncryptedData] = xmerl_xpath:string("./xenc:EncryptedData", Xml, [{namespace, XencNs}]),
-    io:format("EncryptedData: ~p~n", [EncryptedData]),
     [#xmlText{value = CipherValue64}] = xmerl_xpath:string("xenc:CipherData/xenc:CipherValue/text()", EncryptedData, [{namespace, XencNs}]),
-    io:format("CipherValue64: ~p~n", [CipherValue64]),
     CipherValue = base64:decode(CipherValue64),
-    io:format("CipherValue: ~p~n", [CipherValue]),
     SymmetricKey = decrypt_key_info(EncryptedData, PrivateKey),
-    io:format("SymmetricKey: ~p~n", [SymmetricKey]),
     [#xmlAttribute{value = Algorithm}] = xmerl_xpath:string("./xenc:EncryptionMethod/@Algorithm", EncryptedData, [{namespace, XencNs}]),
-    io:format("Algorithm: ~p~n", [Algorithm]),
     AssertionXml = block_decrypt(Algorithm, SymmetricKey, CipherValue),
-    io:format("AssertionXml: ~p~n", [AssertionXml]),
     {Assertion, _} = xmerl_scan:string(AssertionXml, [{namespace_conformant, true}]),
-    io:format("Assertion: ~p~n", [Assertion]),
     Assertion.
 
 
@@ -323,13 +312,9 @@ decrypt_key_info(EncryptedData, Key) ->
     DsNs = [{"ds", 'http://www.w3.org/2000/09/xmldsig#'}],
     XencNs = [{"xenc", 'http://www.w3.org/2001/04/xmlenc#'}],
     [KeyInfo] = xmerl_xpath:string("./ds:KeyInfo", EncryptedData, [{namespace, DsNs}]),
-    io:format("KeyInfo: ~p~n", [KeyInfo]),
     [#xmlAttribute{value = Algorithm}] = xmerl_xpath:string("./xenc:EncryptedKey/xenc:EncryptionMethod/@Algorithm", KeyInfo, [{namespace, XencNs}]),
-    io:format("Algorithm: ~p~n", [Algorithm]),
     [#xmlText{value = CipherValue64}] = xmerl_xpath:string("./xenc:EncryptedKey/xenc:CipherData/xenc:CipherValue/text()", KeyInfo, [{namespace, XencNs}]),
-    io:format("CipherValue64: ~p~n", [CipherValue64]),
     CipherValue = base64:decode(CipherValue64),
-    io:format("CipherValue: ~p~n", [CipherValue]),
     decrypt(CipherValue, Algorithm, Key).
 
 decrypt(CipherValue, "http://www.w3.org/2001/04/xmlenc#rsa-1_5", Key) ->
@@ -344,7 +329,6 @@ decrypt(CipherValue, "http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p", Key) ->
         {rsa_padding, rsa_pkcs1_oaep_padding},
         {rsa_pad, rsa_pkcs1_oaep_padding}
     ],
-    io:format("Opts: ~p~nKey: ~p~n", [Opts, Key]),
     public_key:decrypt_private(CipherValue, Key, Opts).
 
 
