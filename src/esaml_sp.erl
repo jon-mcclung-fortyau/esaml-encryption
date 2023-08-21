@@ -243,19 +243,25 @@ validate_assertion(Xml, DuplicateFun, SP = #esaml_sp{}) ->
           {"saml", 'urn:oasis:names:tc:SAML:2.0:assertion'}],
     esaml_util:threaduntil([
         fun(X) ->
+            io:format("X: ~p~n", [X]),
             case xmerl_xpath:string("/samlp:Response/saml:EncryptedAssertion", X, [{namespace, Ns}]) of
                 [A1] ->
+                    io:format("EncryptedAssertion")
                     try
                         #xmlElement{} = DecryptedAssertion = decrypt_assertion(A1, SP),
                         xmerl_xpath:string("/saml:Assertion", DecryptedAssertion, [{namespace, Ns}]) of
                         [A2] -> A2
                     catch
-                        _Error:_Reason -> {error, bad_assertion}
+                        Error:Reason ->
+                            io:format("Error occurred: ~p - ~p~n", [Error, Reason]),
+                            {error, bad_assertion}
                     end;
                 _ ->
                     case xmerl_xpath:string("/samlp:Response/saml:Assertion", X, [{namespace, Ns}]) of
                         [A3] -> A3;
-                        _ -> {error, bad_assertion}
+                        Error:Reason ->
+                            io:format("Error occurred: ~p - ~p~n", [Error, Reason]),
+                            {error, bad_assertion}
                     end
             end
         end,
